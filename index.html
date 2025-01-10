@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #be1399, #342ccf);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .app-container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeIn 1.2s ease-out;
+            max-width: 400px;
+        }
+
+        .app-container h1 {
+            font-size: 2.5rem;
+            color: #007BFF;
+            animation: bounce 1.5s infinite;
+        }
+
+        input {
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 25px;
+            border: 2px solid #007BFF;
+            width: 80%;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus {
+            border-color: #0056b3;
+            box-shadow: 0 0 15px rgba(0, 91, 187, 0.4);
+        }
+
+        button {
+            padding: 12px 25px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #340f4e, #0056b3);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .weather-info {
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeIn 1.5s ease-in-out 0.5s forwards;
+        }
+
+        .weather-info h3 {
+            font-size: 1.8rem;
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        .weather-info h3:hover {
+            color: #007BFF;
+        }
+
+        .weather-info p {
+            font-size: 1.1rem;
+            color: #555;
+            margin: 8px 0;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: bold;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .loader {
+            margin: 20px auto;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #007BFF;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <h1>Weather App</h1>
+    <input type="text" id="city" placeholder="Enter City Name" />
+    <button onclick="getWeather()">Get Weather</button>
+
+    <div class="loader" id="loader" style="display: none;"></div>
+
+    <div class="weather-info" id="weather-info">
+        <h3 id="cityName"></h3>
+        <p id="temperature"></p>
+        <p id="weatherDescription"></p>
+        <p id="error" class="error-message"></p>
+    </div>
+</div>
+
+<script>
+    const apiKey = "b7e7367c3d8f31bf6d31c35076a67578";
+
+    function getWeather() {
+        const city = document.getElementById("city").value;
+        const loader = document.getElementById("loader");
+        const weatherInfo = document.getElementById("weather-info");
+
+        if (!city) {
+            alert('Please enter a city name');
+            return;
+        }
+
+        loader.style.display = "block";
+        weatherInfo.style.opacity = "0";
+
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${apiKey}&units=metric`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.cod === 200) {
+                    const { name, main, weather } = data;
+                    document.getElementById("cityName").textContent = `Weather in ${name}`;
+                    document.getElementById("temperature").textContent = `${main.temp} °C`;
+                    document.getElementById("weatherDescription").textContent = weather[0].description;
+                    document.getElementById("error").textContent = '';
+                } else {
+                    throw new Error('City not found!');
+                }
+            })
+            .catch(error => {
+                document.getElementById("cityName").textContent = '';
+                document.getElementById("temperature").textContent = '';
+                document.getElementById("weatherDescription").textContent = '';
+                document.getElementById("error").textContent = error.message;
+            })
+            .finally(() => {
+                loader.style.display = "none";
+                weatherInfo.style.opacity = "1";
+            });
+    }
+</script>
+
+</body>
+</html>
